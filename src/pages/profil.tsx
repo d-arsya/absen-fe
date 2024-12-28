@@ -4,11 +4,23 @@ import { Container, Typography, Paper } from "@mui/material";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
+import { getDistance } from "geolib";
 
 interface UserProfile {
   nama: string;
   email: string;
   peran: string;
+}
+interface Geolocation {
+  latitude: number;
+  longitude: number;
+}
+
+function getUserDistance(position: Geolocation) {
+  return getDistance(position, {
+    latitude: -7.531019289655964,
+    longitude: 110.83636753840491,
+  });
 }
 
 const ProfilePage: React.FC = () => {
@@ -17,6 +29,7 @@ const ProfilePage: React.FC = () => {
   const user: UserProfile = data;
   const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
   const [error, setError] = useState("");
+  const [distance, setDistance] = useState(0);
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -25,6 +38,7 @@ const ProfilePage: React.FC = () => {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          setDistance(getUserDistance(location));
         },
         (err) => {
           setError(err.message);
@@ -68,6 +82,8 @@ const ProfilePage: React.FC = () => {
               <strong>Latitude:</strong> {location.latitude}
               <br />
               <strong>Longitude:</strong> {location.longitude}
+              <br />
+              <strong>Jarak dari rumah:</strong> {distance} m
             </Typography>
           ) : error ? (
             <Typography variant="body1" color="error">
