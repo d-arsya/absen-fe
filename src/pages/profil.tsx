@@ -17,10 +17,13 @@ interface Geolocation {
 }
 
 function getUserDistance(position: Geolocation) {
-  return getDistance(position, {
-    latitude: -7.531019289655964,
-    longitude: 110.83636753840491,
-  });
+  return getDistance(
+    {
+      latitude: -7.775198673687798,
+      longitude: 110.37783809171177,
+    },
+    position
+  );
 }
 
 const ProfilePage: React.FC = () => {
