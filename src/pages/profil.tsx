@@ -1,9 +1,9 @@
 // ProfilePage.tsx
-import React, { useEffect } from 'react';
-import { Container, Typography, Paper } from '@mui/material';
-import Layout from '@/components/Layout';
-import { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from "react";
+import { Container, Typography, Paper } from "@mui/material";
+import Layout from "@/components/Layout";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 
 interface UserProfile {
   nama: string;
@@ -12,18 +12,18 @@ interface UserProfile {
 }
 
 const ProfilePage: React.FC = () => {
-  const data = useSelector((state: any) => state.data.data)
-  const router = useRouter()
+  const data = useSelector((state: any) => state.data.data);
+  const router = useRouter();
   const user: UserProfile = data;
 
   useEffect(() => {
     const cekProfil = async () => {
-      if (typeof data === 'undefined' || typeof data.nama === 'undefined') {
-        router.push('/')
+      if (typeof data === "undefined" || typeof data.nama === "undefined") {
+        router.push("/");
       }
-    }
-    cekProfil()
-  }, [data])
+    };
+    cekProfil();
+  }, [data]);
 
   return (
     <Layout>
@@ -43,6 +43,7 @@ const ProfilePage: React.FC = () => {
           </Typography>
         </Paper>
       </Container>
+      <h1>Halo</h1>
     </Layout>
   );
 };
