@@ -1,30 +1,54 @@
-import React, { useState } from 'react';
-import { Box, Fab, Typography } from '@mui/material';
-import { QrCodeScanner, Stop } from '@mui/icons-material';
-import QrScanner from 'qr-scanner';
-import Layout from '@/components/Layout';
-import { absenKehadiran } from '@/services/kehadiranApi';
-import { ubahTanggal } from '@/services/utils';
+import React, { useState, useEffect } from "react";
+import { Box, Fab, Typography } from "@mui/material";
+import { QrCodeScanner, Stop } from "@mui/icons-material";
+import QrScanner from "qr-scanner";
+import Layout from "@/components/Layout";
+import { absenKehadiran } from "@/services/kehadiranApi";
+import { ubahTanggal } from "@/services/utils";
 
 let stopScan = false;
 
 const AbsensiScanner: React.FC = () => {
   const [btnScan, setBtnScan] = useState(true);
-  const [hasilAbsen, setAbsen] = useState('');
+  const [hasilAbsen, setAbsen] = useState("");
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (err) => {}
+    );
+  }
 
   const absen = async (kodeScan: string) => {
     try {
-      const data = JSON.parse(kodeScan)
-      const respon = await absenKehadiran(data.kode, data.jenis)
-      if (typeof respon !== 'undefined' && typeof respon.data !== 'undefined' && typeof respon.data[data.jenis] !== 'undefined') {
-        const tanggal = ubahTanggal(`${respon.data[data.jenis]}`)
-        setAbsen(`Absen ${data.jenis} tercatat pada ${tanggal}`)
+      const data = JSON.parse(kodeScan);
+      const respon = await absenKehadiran(
+        data.kode,
+        data.jenis,
+        location.latitude,
+        location.longitude
+      );
+      if (
+        typeof respon !== "undefined" &&
+        typeof respon.data !== "undefined" &&
+        typeof respon.data[data.jenis] !== "undefined"
+      ) {
+        const tanggal = ubahTanggal(`${respon.data[data.jenis]}`);
+        setAbsen(
+          `Absen ${data.jenis} tercatat pada ${tanggal} dari titik ${respon.data.position.latitude},${respon.data.position.longitude} berjarak ${respon.data.position.distance}`
+        );
       }
-      console.log(respon)
+      console.log(respon);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const scanNow = async (isScan: boolean) => {
     setBtnScan(isScan);
@@ -33,7 +57,7 @@ const AbsensiScanner: React.FC = () => {
     stopScan = false;
     await new Promise((r) => setTimeout(r, 100));
     const videoElement = document.getElementById(
-      'scanView',
+      "scanView"
     ) as HTMLVideoElement;
     const scanner = new QrScanner(
       videoElement,
@@ -50,29 +74,26 @@ const AbsensiScanner: React.FC = () => {
         highlightScanRegion: true,
         highlightCodeOutline: true,
         returnDetailedScanResult: true,
-      },
+      }
     );
     await scanner.start();
     while (stopScan === false) await new Promise((r) => setTimeout(r, 100));
     scanner.stop();
     scanner.destroy();
-  }
+  };
 
   return (
     <Layout>
-      <Box p="20px"
-        display="flex"
-        width="100%"
-        justifyContent="center">
+      <Box p="20px" display="flex" width="100%" justifyContent="center">
         {btnScan === false && (
           <video
             id="scanView"
             style={{
-              width: '100%',
-              maxWidth: '400px',
-              height: '100%',
-              maxHeight: '400px',
-              borderStyle: 'dotted',
+              width: "100%",
+              maxWidth: "400px",
+              height: "100%",
+              maxHeight: "400px",
+              borderStyle: "dotted",
             }}
           ></video>
         )}
@@ -84,9 +105,9 @@ const AbsensiScanner: React.FC = () => {
           </Typography>
         )}
         <Fab
-          color={btnScan ? 'primary' : 'secondary'}
+          color={btnScan ? "primary" : "secondary"}
           onClick={() => scanNow(!btnScan)}
-          sx={{ position: 'absolute', bottom: 16, right: 16 }}
+          sx={{ position: "absolute", bottom: 16, right: 16 }}
         >
           {btnScan && <QrCodeScanner />}
           {btnScan === false && <Stop />}
