@@ -1,5 +1,5 @@
 // ProfilePage.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Typography, Paper } from "@mui/material";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
@@ -15,7 +15,25 @@ const ProfilePage: React.FC = () => {
   const data = useSelector((state: any) => state.data.data);
   const router = useRouter();
   const user: UserProfile = data;
-
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (err) => {
+          setError(err.message);
+        }
+      );
+    } else {
+      setError("Geolocation not supported by your browser.");
+    }
+  }, []);
   useEffect(() => {
     const cekProfil = async () => {
       if (typeof data === "undefined" || typeof data.nama === "undefined") {
@@ -41,11 +59,26 @@ const ProfilePage: React.FC = () => {
           <Typography variant="body1">
             <strong>Peran:</strong> {user.peran}
           </Typography>
+
+          <Typography variant="h6" sx={{ marginTop: 4 }}>
+            Lokasi Saat Ini
+          </Typography>
+          {location.latitude && location.longitude ? (
+            <Typography variant="body1">
+              <strong>Latitude:</strong> {location.latitude}
+              <br />
+              <strong>Longitude:</strong> {location.longitude}
+            </Typography>
+          ) : error ? (
+            <Typography variant="body1" color="error">
+              {error}
+            </Typography>
+          ) : (
+            <Typography variant="body1">Mengambil lokasi...</Typography>
+          )}
         </Paper>
       </Container>
-      <h1>Halo</h1>
     </Layout>
   );
 };
-
 export default ProfilePage;
