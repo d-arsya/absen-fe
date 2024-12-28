@@ -19,7 +19,7 @@ export const ambilKode = async () => {
 export const absenKehadiran = async (
   kode: string,
   jenis: string,
-  latidude: number,
+  latitude: number,
   longitude: number
 ) => {
   const response = await fetch(`${API_BASE_URL}/kehadiran`, {
@@ -28,7 +28,7 @@ export const absenKehadiran = async (
       Authorization: getToken(),
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ kode, jenis, latidude, longitude }),
+    body: JSON.stringify({ kode, jenis, latitude, longitude }),
   });
 
   if (response.ok) {
